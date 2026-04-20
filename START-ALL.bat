@@ -35,8 +35,8 @@ echo   API Health   -->  http://localhost:5000/health
 echo.
 echo   Admin Code   -->  TECHGEAR_ADMIN_2026
 echo.
-echo   NOTE: Make sure "mongod" is running in another terminal!
-echo         Without MongoDB, accounts won't persist on restart.
+echo   NOTE: Make sure server\.env contains a valid MongoDB Atlas MONGO_URI.
+echo         Without a working MongoDB connection, accounts won't persist on restart.
 echo ============================================================
 echo.
 pause

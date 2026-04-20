@@ -134,7 +134,7 @@ const AdminJourneyPage = () => (
           {[
             { icon:'🛡️', title:'Admin-Only Routes',  desc:'Every admin page is protected by a Bearer token. Without a valid admin token, all API calls return 403 Forbidden.',                         bg:'#fce4ec', color:'#880e4f', border:'#e91e63' },
             { icon:'🔑', title:'Registration Code',  desc:'To create an admin account you must enter the secret code: TECHGEAR_ADMIN_2026. Without it, signup is blocked.',                           bg:'#e8f4fd', color:'#1565c0', border:'#2874f0' },
-            { icon:'💾', title:'Persistent Data',    desc:'When MongoDB is running, all accounts, events, and stats are saved permanently across restarts. Always start mongod first.',                bg:'#e8f5e9', color:'#1b5e20', border:'#26a541' },
+            { icon:'💾', title:'Persistent Data',    desc:'When MongoDB Atlas is connected, all accounts, events, and stats are saved permanently across restarts. Keep server/.env pointed at your Atlas cluster.', bg:'#e8f5e9', color:'#1b5e20', border:'#26a541' },
             { icon:'🔄', title:'Session Handling',   desc:'Admin sessions are stored in sessionStorage — they expire when the browser tab is closed, keeping the panel secure on shared machines.',   bg:'#fff8e1', color:'#e65100', border:'#ff9f00' },
           ].map((item, i) => (
             <div key={i} className="col-md-6">
