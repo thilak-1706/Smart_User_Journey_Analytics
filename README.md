@@ -388,13 +388,16 @@ The server uses `server/.env`:
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/techgear_analytics?appName=Cluster0
+CLIENT_ORIGINS=http://localhost:3000,http://localhost:3001,https://your-frontend-domain.vercel.app
 ```
 
 The server automatically tries ports `5000 → 5001 → 5002 → 5003 → 4000 → 4001` if a port is busy.
 
-> ⚠️ If the server starts on a port other than 5000, update `BASE_URL` in both:
-> - `user-app/src/services/api.js`
-> - `admin-app/src/services/api.js`
+For deployed frontends, set `REACT_APP_API_URL` in both Vercel projects to your hosted backend URL, for example:
+
+```env
+REACT_APP_API_URL=https://your-backend-domain/api
+```
 
 ---
 

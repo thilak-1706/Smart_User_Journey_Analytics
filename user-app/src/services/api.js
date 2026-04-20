@@ -1,6 +1,23 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/api';
+const normalizeApiBase = (value) => {
+  const trimmed = (value || '').trim().replace(/\/+$/, '');
+  if (!trimmed) return '';
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+const getApiBase = () => {
+  const envBase = normalizeApiBase(process.env.REACT_APP_API_URL);
+  if (envBase) return envBase;
+
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;
+  }
+
+  return 'http://localhost:5000/api';
+};
+
+const BASE_URL = getApiBase();
 
 const h = () => {
   const token = sessionStorage.getItem('token');
