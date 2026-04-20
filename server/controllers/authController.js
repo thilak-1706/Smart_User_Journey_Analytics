@@ -2,9 +2,14 @@ const { v4: uuidv4 }  = require('uuid');
 const bcrypt          = require('bcryptjs');
 const User            = require('../models/User');
 const tokenStore      = require('../store/tokenStore');
+const { canUseMemoryFallback } = require('../config/runtime');
 
 const genToken  = () => 'tok_' + uuidv4().replace(/-/g, '');
 const dbReady   = () => { try { return require('mongoose').connection.readyState === 1; } catch { return false; } };
+const requireDatabase = (res) =>
+  res.status(503).json({
+    message: 'Database unavailable. This deployment is not connected to MongoDB Atlas.',
+  });
 
 // ── USER SIGNUP ───────────────────────────────────────────────────────────────
 const userSignup = async (req, res) => {
@@ -24,6 +29,8 @@ const userSignup = async (req, res) => {
       console.log(`[DB] ✅ User created: ${emailLC}`);
       return res.status(201).json({ token, user: { id: user._id.toString(), name: user.name, email: user.email, role: 'user' } });
     }
+
+    if (!canUseMemoryFallback()) return requireDatabase(res);
 
     // MongoDB offline fallback
     if (tokenStore.findByEmail(emailLC)) return res.status(409).json({ message: 'Email already registered' });
@@ -57,6 +64,8 @@ const userLogin = async (req, res) => {
       return res.json({ token, user: { id: user._id.toString(), name: user.name, email: user.email, role: 'user' } });
     }
 
+    if (!canUseMemoryFallback()) return requireDatabase(res);
+
     // Memory fallback
     const u = tokenStore.findByEmail(emailLC);
     if (!u || u.role !== 'user') return res.status(401).json({ message: 'No user account found with this email' });
@@ -86,6 +95,8 @@ const adminSignup = async (req, res) => {
       console.log(`[DB] ✅ Admin created: ${emailLC}`);
       return res.status(201).json({ token, user: { id: admin._id.toString(), name: admin.name, email: admin.email, role: 'admin' } });
     }
+
+    if (!canUseMemoryFallback()) return requireDatabase(res);
 
     if (tokenStore.findByEmail(emailLC)) return res.status(409).json({ message: 'Email already registered' });
     const hashed = await bcrypt.hash(password, 10);
@@ -118,6 +129,8 @@ const adminLogin = async (req, res) => {
       return res.json({ token, user: { id: admin._id.toString(), name: admin.name, email: admin.email, role: 'admin' } });
     }
 
+    if (!canUseMemoryFallback()) return requireDatabase(res);
+
     const a = tokenStore.findByEmail(emailLC);
     if (!a || a.role !== 'admin') return res.status(401).json({ message: 'No admin account found with this email' });
     if (!(await bcrypt.compare(password, a.password))) return res.status(401).json({ message: 'Incorrect password' });
@@ -135,6 +148,8 @@ const profile = async (req, res) => {
       const user = await User.findById(req.user._id).select('-password -token');
       return res.json(user);
     }
+    if (!canUseMemoryFallback()) return requireDatabase(res);
+
     const { password: _p, token: _t, ...safe } = req.user;
     res.json(safe);
   } catch (err) { res.status(500).json({ message: err.message }); }

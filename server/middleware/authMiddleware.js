@@ -1,4 +1,5 @@
 const tokenStore = require('../store/tokenStore');
+const { canUseMemoryFallback } = require('../config/runtime');
 
 const isDBConnected = () => {
   try { return require('mongoose').connection.readyState === 1; } catch { return false; }
@@ -19,6 +20,9 @@ const authMiddleware = async (req, res, next) => {
       req.user = user;
       return next();
     }
+    if (!canUseMemoryFallback()) {
+      return res.status(503).json({ message: 'Database unavailable. Please retry after backend setup is fixed.' });
+    }
     const user = tokenStore.findByToken(token);
     if (!user) return res.status(401).json({ message: 'Invalid token' });
     req.user = user;
@@ -38,6 +42,9 @@ const adminOnly = async (req, res, next) => {
       if (user.role !== 'admin') return res.status(403).json({ message: 'Admin access only' });
       req.user = user;
       return next();
+    }
+    if (!canUseMemoryFallback()) {
+      return res.status(503).json({ message: 'Database unavailable. Please retry after backend setup is fixed.' });
     }
     const user = tokenStore.findByToken(token);
     if (!user) return res.status(401).json({ message: 'Invalid token' });
