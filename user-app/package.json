@@ -13,8 +13,8 @@
     "uuid": "^9.0.0"
   },
   "scripts": {
-    "start": "cross-env PORT=3000 react-scripts start",
-    "build": "react-scripts build"
+    "start": "cross-env PORT=3000 node ./node_modules/react-scripts/bin/react-scripts.js start",
+    "build": "node ./node_modules/react-scripts/bin/react-scripts.js build"
   },
   "browserslist": { "production": [">0.2%","not dead"], "development": ["last 1 chrome version"] }
 }
