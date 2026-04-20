@@ -399,6 +399,8 @@ For deployed frontends, set `REACT_APP_API_URL` in both Vercel projects to your 
 REACT_APP_API_URL=https://your-backend-domain/api
 ```
 
+If you want to host the backend on Vercel too, create a separate Vercel project with its Root Directory set to `server/`, then use that backend domain in `REACT_APP_API_URL`.
+
 ---
 
 ## 📦 Product Catalog

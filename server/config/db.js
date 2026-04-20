@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+let connectionPromise = null;
+
 const maskMongoUri = (uri) => {
   try {
     const parsed = new URL(uri);
@@ -21,15 +23,26 @@ const connectDB = async () => {
     return false;
   }
 
+  if (mongoose.connection.readyState === 1) {
+    return true;
+  }
+
+  if (mongoose.connection.readyState === 2 && connectionPromise) {
+    await connectionPromise;
+    return true;
+  }
+
   console.log(`\n[db] Connecting to MongoDB at: ${maskMongoUri(uri)}`);
 
   for (let attempt = 1; attempt <= 5; attempt++) {
     try {
       mongoose.set('strictQuery', false);
-      await mongoose.connect(uri, { serverSelectionTimeoutMS: 6000, connectTimeoutMS: 10000 });
+      connectionPromise = mongoose.connect(uri, { serverSelectionTimeoutMS: 6000, connectTimeoutMS: 10000 });
+      await connectionPromise;
       console.log('[db] MongoDB connected. Persistent data storage is active.\n');
       return true;
     } catch (err) {
+      connectionPromise = null;
       console.error(`[db] Attempt ${attempt}/5 failed: ${err.message}`);
       if (attempt < 5) {
         console.log('[db] Retrying in 3s...');
